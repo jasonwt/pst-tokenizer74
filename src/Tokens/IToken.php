@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Pst\Tokenizer;
+namespace Pst\Tokenizer\Tokens;
 
 use Pst\Core\ICoreObject;
 

@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Pst\Tokenizer;
+namespace Pst\Tokenizer\TokenFactories;
 
-use InvalidArgumentException;
+use Pst\Tokenizer\Tokens\Token;
+use Pst\Tokenizer\Tokens\IToken;
 
 class RegexTokenFactory extends TokenFactory implements IRegexTokenFactory {
     private array $regexPatterns = [];

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Pst\Tokenizer;
+namespace Pst\Tokenizer\TokenFactories;
 
 class RegexTermsTokenFactory extends RegexTokenFactory implements IRegexTermsTokenFactory {
     public function __construct(string $tokenName, array $terms, ?string $termination = null, ?int $priority = null) {
