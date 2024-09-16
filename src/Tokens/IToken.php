@@ -6,9 +6,8 @@ namespace Pst\Tokenizer\Tokens;
 
 use Pst\Core\ICoreObject;
 
-
 interface IToken extends ICoreObject {
-    public function getIndexOffset(): int;
     public function getName(): string;
-    public function getValue(): string;
+    public function getValue();
+    public function getCharactersConsumed(): int;
 }

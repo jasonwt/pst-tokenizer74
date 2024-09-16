@@ -13,22 +13,25 @@ use Pst\Core\Collections\Traits\LinqTrait;
 
 use Pst\Tokenizer\Tokens\IToken;
 use Pst\Tokenizer\TokenFactories\ITokenFactory;
+use Pst\Tokenizer\TokenFactories\IEnumerableTokenFactory;
 
 use Pst\Tokenizer\Exceptions\TokenizerException;
+use Pst\Core\Exceptions\NotImplementedException;
 
 use Closure;
-use Iterator;
 use Traversable;
 use ArrayIterator;
+use Pst\Tokenizer\Tokens\IRetokenizeValueToken;
+use Pst\Tokenizer\Tokens\TokenGroup;
 
 class Tokenizer extends CoreObject implements ITokenizer {
     use LinqTrait {
         count as public linqCount;
     }
 
-    private ?string $input = null;
+    private string $input = "";
     private array $registeredTokenFactories = [];
-    private ?array $parsedTokens = null;
+    private array $parsedTokens = [];
 
     public function __construct(string $input, ITokenFactory ...$factories) {
         $this->registerTokenFactories(...$factories);
@@ -37,7 +40,7 @@ class Tokenizer extends CoreObject implements ITokenizer {
     }
 
     public function getIterator(): Traversable {
-        return new ArrayIterator($this->parsedTokens ?? []);
+        return new ArrayIterator($this->parsedTokens);
     }
 
     public function T(): ITypeHint {
@@ -45,36 +48,39 @@ class Tokenizer extends CoreObject implements ITokenizer {
     }
 
     public function count(?Closure $predicate = null): int {
-        return $predicate === null ? count($this->parsedTokens ?? []) : $this->linqCount($predicate);
+        return $predicate === null ? count($this->parsedTokens) : $this->linqCount($predicate);
     }
 
     public function getParsedTokens(): IEnumerable {
-        return Enumerator::new($this->parsedTokens ?? [], Type::interface(IToken::class));
+        return Enumerator::new($this->parsedTokens, Type::interface(IToken::class));
     }
 
     public function tokenizeInput(string $input): IEnumerable {
+        echo "Tokenizing input: $input\n";
         if (count($this->registeredTokenFactories) === 0) {
             throw new TokenizerException('No token factories registered');
         }
 
         $inputOffset = 0;
-        $inputLength = strlen($this->input);
+        $inputLength = strlen($input);
         $parsedTokens = [];
 
         while ($inputOffset < $inputLength) {
-            $offsetedInput = substr($this->input, $inputOffset);
+            $offsetedInput = substr($input, $inputOffset);
 
             foreach ($this->registeredTokenFactories as $factory) {
                 if (($token = $factory->tryTokenize($offsetedInput)) !== null) {
+                    $inputOffset += $token->getCharactersConsumed();
                     
-                    $inputOffset += $token->getIndexOffset();
-                    $parsedTokens[] = $token;
-
-                    if ($token instanceof Iterator) {
-                        foreach ($token as $subToken) {
-                            $parsedTokens[] = $subToken;
-                        }
+                    if ($token instanceof IRetokenizeValueToken) {
+                        $token = new TokenGroup(
+                            $token->getName(),
+                            $token->getCharactersConsumed(),
+                            ...$token->getTokenizer()->tokenizeInput($token->getValue())->toArray()
+                        );
                     }
+
+                    $parsedTokens[] = $token;
 
                     continue 2;
                 }
@@ -99,8 +105,8 @@ class Tokenizer extends CoreObject implements ITokenizer {
             $this->registeredTokenFactories[$factory->getName()] = $factory;
         }
 
-        if ($this->input !== null) {
-            $this->parsedTokens = $this->tokenizeInput($this->input);
+        if ($this->input !== "") {
+            $this->parsedTokens = $this->tokenizeInput($this->input)->toArray();
         }
 
         return $this;

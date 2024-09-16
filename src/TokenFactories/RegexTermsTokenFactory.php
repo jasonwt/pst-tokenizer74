@@ -5,19 +5,29 @@ declare(strict_types=1);
 namespace Pst\Tokenizer\TokenFactories;
 
 class RegexTermsTokenFactory extends RegexTokenFactory implements IRegexTermsTokenFactory {
-    public function __construct(string $tokenName, array $terms, ?string $termination = null, ?int $priority = null) {
-        $regexPatterns = array_reduce($terms, function($carry, $term) {
-            $value = preg_quote($term, '/');
-            $carry[$term] ??= $value;
-            return $carry;
-        }, []);
+    public function __construct(string $tokenName, string ...$terms) {
+        if (count($terms) === 0) {
+            throw new \InvalidArgumentException('At least one term must be provided');
+        }
 
-        // sort by length longest to shortest
         uasort($terms, function($a, $b) {
             return strlen($b) - strlen($a);
         });
 
-        parent::__construct($tokenName, $regexPatterns, $termination, $priority ?? 0);
+        $regexPatterns = array_map(function($term) {
+            if ($term === '') {
+                throw new \InvalidArgumentException('Empty term provided');
+            }
+
+            return preg_quote($term, '/');
+        }, $terms);
+
+        
+
+        // sort by length longest to shortest
+        
+
+        parent::__construct($tokenName, ...$regexPatterns);
     }
 
     public function getTerms(): array {

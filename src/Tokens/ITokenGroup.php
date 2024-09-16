@@ -6,6 +6,6 @@ namespace Pst\Tokenizer\Tokens;
 
 use Pst\Core\Collections\IEnumerable;
 
-interface IEnumerableToken extends IToken, IEnumerable {
+interface ITokenGroup extends IToken, IEnumerable {
     
 }

@@ -7,31 +7,32 @@ namespace Pst\Tokenizer\Tokens;
 use Pst\Core\CoreObject;
 
 class Token extends CoreObject implements IToken {
-    private int $indexOffset;
+    private int $charactersConsumed;
+
     private string $name;
-    private string $value;
+    private $value;
 
-    public function __construct(int $indexOffset, string $name, string $value) {
-        if (($this->indexOffset = $indexOffset) < 0) {
-            throw new \InvalidArgumentException('Index offset must be greater than or equal to 0');
-        }
-
+    public function __construct(string $name, $value, int $charactersConsumed) {
         if (empty($this->name = trim($name))) {
             throw new \InvalidArgumentException('Name cannot be empty');
         }
 
-        $this->value = $value;
-    }
+        if (($this->charactersConsumed = $charactersConsumed) < 1) {
+            throw new \InvalidArgumentException('Characters consumed must be greater than 1');
+        }
 
-    public function getIndexOffset(): int {
-        return $this->indexOffset;
+        $this->value = $value;
     }
 
     public function getName(): string {
         return $this->name;
     }
 
-    public function getValue(): string {
+    public function getValue() {
         return $this->value;
+    }
+
+    public function getCharactersConsumed(): int {
+        return $this->charactersConsumed;
     }
 }

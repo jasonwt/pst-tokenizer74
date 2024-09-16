@@ -2,35 +2,26 @@
 
 declare(strict_types=1);
 
-use Pst\Tokenizer\OpenCloseTerm;
-use Pst\Tokenizer\TokenFactories\RegexTermsTokenFactory;
-use Pst\Tokenizer\TokenFactories\TokenFactory;
 use Pst\Tokenizer\Tokenizer;
+use Pst\Tokenizer\PregPatterns\BetweenTerms;
+use Pst\Tokenizer\PregPatterns\PregPatterns;
+use Pst\Tokenizer\TokenFactories\RegexTermsTokenFactory;
+use Pst\Tokenizer\TokenFactories\RegexTokenFactory;
 
 require_once(__DIR__ . '/../vendor/autoload.php');
 
-$input = "a = 1 + (2 * 3) - 4";
+$input = "(((1+(2*3))-4)/4) + 1";
 
-echo "\n\n$input\n\n";
+class MathEquationTokenizer extends Tokenizer {
+    public function __construct(string $input) {
+        parent::__construct($input,
+            new RegexTokenFactory("Parenthesis", PregPatterns::betweenPattern(new BetweenTerms("(", ")"), new BetweenTerms("'"))),
+            new RegexTermsTokenFactory("Operators", "=", "+", "-", "*", "/"),
+            new RegexTokenFactory("NumericLiterals", PregPatterns::numericPattern()),
+        );
+    }
+}
 
-$tokenizer = new Tokenizer($input, 
-    new RegexTermsTokenFactory("Operators", ["=", "+", "-", "*", "/"]),
-    TokenFactory::WordTokenFactory(),
-    TokenFactory::ParenthesisBlockTokenFactory([OpenCloseTerm::new("'"), OpenCloseTerm::new('"')]),
-    TokenFactory::NumericTokenFactory(),
-    TokenFactory::WhitespaceTokenFactory(),
-);
+$mathEquationTokenizer = new MathEquationTokenizer($input);
 
-print_r($tokenizer);
-
-
-// $input = "SELECT * FROM table WHERE column = 'value'";
-
-// $mysqlTokenizer = new Tokenizer($input, 
-//     new RegexTermsTokenFactory("Keywords", ["SELECT", "FROM", "WHERE"]),
-//     TokenFactory::SymbolsTokenFactory(),
-// );
-
-// print_r($mysqlTokenizer);
-// print_r($mysqlTokenizer->toArray());
-// print_r($mysqlTokenizer);
+print_r($mathEquationTokenizer);

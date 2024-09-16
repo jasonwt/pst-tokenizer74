@@ -13,7 +13,7 @@ interface ITokenizer extends ICoreObject, IEnumerable {
     public function getInput(): string;
     public function getParsedTokens(): IEnumerable;
     public function getRegisteredTokenFactories(): IEnumerable;
-    
+
     public function setInput(string $inpt): ITokenizer;
     public function tokenizeInput(string $input): IEnumerable;
     public function registerTokenFactories(ITokenFactory ...$factories): ITokenizer;
