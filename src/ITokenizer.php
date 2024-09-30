@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Pst\Tokenizer;
 
-use Pst\Core\ICoreObject;
-use Pst\Core\Collections\IEnumerable;
+use Pst\Core\Interfaces\ICoreObject;
+use Pst\Core\Enumerable\IEnumerable;
 
 use Pst\Tokenizer\TokenFactories\ITokenFactory;
 

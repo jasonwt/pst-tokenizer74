@@ -6,9 +6,9 @@ namespace Pst\Tokenizer\Tokens;
 
 use Pst\Core\Types\Type;
 use Pst\Core\Types\ITypeHint;
-use Pst\Core\Collections\Enumerator;
-use Pst\Core\Collections\IEnumerable;
-use Pst\Core\Collections\Traits\LinqTrait;
+use Pst\Core\Enumerable\Enumerable;
+use Pst\Core\Enumerable\IEnumerable;
+use Pst\Core\Enumerable\ImmutableEnumerableLinqTrait;
 
 use Closure;
 use Traversable;
@@ -16,7 +16,7 @@ use ArrayIterator;
 
 
 class TokenGroup extends Token implements ITokenGroup {
-    use LinqTrait {
+    use ImmutableEnumerableLinqTrait {
         count as private linqCount;
     }
     
@@ -29,7 +29,7 @@ class TokenGroup extends Token implements ITokenGroup {
     }
     
     public function getTokens(): IEnumerable {
-        return Enumerator::new($this->getValue(), Type::interface(IToken::class));
+        return Enumerable::create($this->getValue(), Type::interface(IToken::class));
     }
 
     public function T(): ITypeHint {

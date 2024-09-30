@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Pst\Tokenizer\Tokens;
 
-use Pst\Core\Collections\IEnumerable;
+use Pst\Core\Enumerable\IEnumerable;
 
 interface ITokenGroup extends IToken, IEnumerable {
     
